@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 const _ = require('lodash');
+var { authenticate } = require('./middleware/authenticate');
 
 var { Todo } = require('./db/Todo');
 var { User } = require('./db/User');
@@ -22,6 +23,10 @@ app.post('/users', (req,res) => {
             console.log(e);
             res.status(400).send(e)
         });
+});
+
+app.get('/users/me', authenticate,(req, res) => {
+    res.send(req.user);
 });
 
 app.listen(3000, () => {
