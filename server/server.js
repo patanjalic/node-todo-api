@@ -1,18 +1,26 @@
-var mongoose = require('mongoose');
+var express = require('express');
+var bodyParser = require('body-parser');
+const _ = require('lodash');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://todouser:todouser@ds115085.mlab.com:15085/todos');
+var { Todo } = require('./db/Todo');
+var { User } = require('./db/User');
 
-var Todo = mongoose.model('Todos', {
-    text: { type: String },
-    completed: { type: Boolean },
-    completedAt: { type: Number }
+
+var app = express();
+app.use(bodyParser.json());
+
+app.post('/todos', (req, res) => {
+    var todo = new Todo({ text: req.body.text });
+    todo.save().then((doc) => { res.send(doc) }, (err) => { res.status(400).send('error') });
 });
 
-var todo = new Todo({ text: 'Watch nfl game' });
-todo.save().then((doc) => {
-    console.log('Document successfully saved ' + JSON.stringify(doc, undefined, 2));
-}, (err) => {
-    console.log('Error while saving document ' + e);
-    });
+app.post('/users', (req,res) => {
+    var user = new User(_.pick(req.body, ['email', 'password']));
+    user.save().then((doc) => { res.send(doc) }, (err) => { res.status(400).send(err) });
+});
+
+app.listen(3000, () => {
+    console.log('Server successfully started on port ' + 3000);
+});
+
 
